@@ -50,13 +50,11 @@ OPTIONS
  
    -c <lon1,lat1:lon2,lat2>   : Search for products intersecting a rectangular Area of Interst (or Bounding Box)
 							    by providing the geographical coordinates of two opposite vertices. 
-   				                Coordinates need to be provided in Decimal Degrees and with the following syntax:
- 
-   				                   - lon1,lat1:lon2,lat2
- 
-							    where lon1 and lat1 are respectively the longitude and latitude of the first vertex and
-  				                lon2 and lat2 the longitude and latitude of the second vertex.
-   				                (e.g. '-c -4.530,29.850:26.750,46.800' is a bounding box enclosing the Mediterranean Sea).
+   				                Coordinates need to be provided in Decimal Degrees and with the following syntax:   
+    				 -lon1,lat1:lon2,lat2   
+ 				where lon1 and lat1 are respectively the longitude and latitude of the first vertex and
+ 	    	                lon2 and lat2 the longitude and latitude of the second vertex.
+   				(e.g. '-c -4.530,29.850:26.750,46.800' is a bounding box enclosing the Mediterranean Sea).
  
    -T <product type>		  : Search products according to the specified product type.
    				                Sentinel-1 possible options are:  SLC, GRD, OCN and RAW. 
