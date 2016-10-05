@@ -40,11 +40,11 @@ test -d $WD || mkdir -p $WD
 
 bold=$(tput bold)
 normal=$(tput sgr0)
-print_script=`echo "$0" | rev | cut -d'/' -f1 | rev`
+print_script=$(echo "$0" | rev | cut -d'/' -f1 | rev)
 
 function print_usage 
 { 
- print_script=`echo "$1" | rev | cut -d'/' -f1 | rev`
+ print_script=$(echo "$1" | rev | cut -d'/' -f1 | rev)
  echo " "
  echo "${bold}NAME${normal}"
  echo " "
@@ -251,7 +251,7 @@ while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:D:r:O:N:L:n:" opt; d
 	f)
 		export TIMEFILE="$OPTARG"
 		if [ -s "$TIMEFILE" ]; then 		
-			export INGEGESTION_TIME_FROM="`cat $TIMEFILE`"
+			export INGEGESTION_TIME_FROM="$(cat $TIMEFILE)"
 		else
 			export INGEGESTION_TIME_FROM="1970-01-01T00:00:00.000Z"
 		fi
@@ -259,14 +259,14 @@ while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:D:r:O:N:L:n:" opt; d
 	c) 
 		ROW=$OPTARG
 
-		FIRST=`echo "$ROW" | awk -F\: '{print \$1}' `
-		SECOND=`echo "$ROW" | awk -F\: '{print \$2}' `
+		FIRST=$(echo "$ROW" | awk -F\: '{print \$1}' )
+		SECOND=$(echo "$ROW" | awk -F\: '{print \$2}' )
 
 		#--
-		export x1=`echo "${FIRST}"|awk -F, '{print $1}'`
-		export y1=`echo "${FIRST}"|awk -F, '{print $2}'`
-		export x2=`echo "${SECOND}"|awk -F, '{print $1}'`
-		export y2=`echo "${SECOND}"|awk -F, '{print $2}'`
+		export x1=$(echo "${FIRST}"|awk -F, '{print $1}')
+		export y1=$(echo "${FIRST}"|awk -F, '{print $2}')
+		export x2=$(echo "${SECOND}"|awk -F, '{print $1}')
+		export y2=$(echo "${SECOND}"|awk -F, '{print $2}')
 		;;
 
 	T)
@@ -333,7 +333,7 @@ fi
 mkdir $lock_file
 
 if [ $? != 0 ]; then 
-	echo -e "Error! An instance of \"dhusget\" retriever is running !\n Pid is: "`cat ${PIDFILE}` "if it isn't running delete the lockdir  ${lock_file}"
+	echo -e "Error! An instance of \"dhusget\" retriever is running !\n Pid is: "$(cat ${PIDFILE}) "if it isn't running delete the lockdir  ${lock_file}"
 	
 	exit 
 else
@@ -417,7 +417,7 @@ cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c ' while : ; do
         ${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O $output_folder/${3}".zip" "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value";
         test=$?;
         if [ $test -eq 0 ]; then
-                echo "Product ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+                echo "Product ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
                 remoteMD5=$( ${WC} -qO- ${AUTH} ${TRIES} -c "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Checksum/Value/$value" | awk -F">" '\''{print $3}'\'' | awk -F"<"     '\''{print $1}'\'');
                 localMD5=$( openssl md5 $output_folder/${3}".zip" | awk '\''{print $2}'\'');
                 localMD5Uppercase=$(echo "$localMD5" | tr '\''[:lower:]'\'' '\''[:upper:]'\'');
@@ -681,7 +681,7 @@ if [ ! -z "$x1" ];then
 	if [[ ! -z "$QUERY_STATEMENT" ]]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
-	export GEO_SUBQUERY=`LC_NUMERIC=en_US.UTF-8; printf "( footprint:\"Intersects(POLYGON((%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f )))\")" $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 $x1 $y1 `
+	export GEO_SUBQUERY=$(LC_NUMERIC=en_US.UTF-8; printf "( footprint:\"Intersects(POLYGON((%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f )))\")" $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 $x1 $y1 )
 	export QUERY_STATEMENT=${QUERY_STATEMENT}" ${GEO_SUBQUERY}"
 else
 	export GEO_SUBQUERY=""
@@ -705,7 +705,7 @@ if [ -z "$NAMEFILERESULTS" ];then
 fi
 /bin/rm -f "$NAMEFILERESULTS"
 "${WC}" "${AUTH}" "${TRIES}" -c -O "${NAMEFILERESULTS}" "${QUERY_STATEMENT}"
-LASTDATE=`date -u +%Y-%m-%dT%H:%M:%S.%NZ`
+LASTDATE=$(date -u +%Y-%m-%dT%H:%M:%S.%NZ)
 sleep 5
 
 cat $PWD/"${NAMEFILERESULTS}" | grep '<id>' | tail -n +2 | cut -f2 -d'>' | cut -f1 -d'<' | cat -n > .product_id_list
@@ -714,12 +714,12 @@ cat $PWD/"${NAMEFILERESULTS}" | grep '<link rel="alternative" href=' | cut -f4 -
 
 cat $PWD/"${NAMEFILERESULTS}" | grep '<title>' | tail -n +2 | cut -f2 -d'>' | cut -f1 -d'<' | cat -n > .product_title_list
 if [ ! -z "$TIMEFILE" ];then
-if [ `cat "${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<' | wc -l` -ne 0 ];
+if [ $(cat "${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<' | wc -l) -ne 0 ];
 then
-	lastdate=`cat $PWD/"${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<'`;
-	years=`echo $lastdate | tr "T" '\n'|head -n 1`;
-	hours=`echo $lastdate | tr "T" '\n'|tail -n 1`;
-	echo `date +%Y-%m-%d --date="$years"`"T"`date +%T.%NZ -u --date="$hours + 0.001 seconds"`> "$TIMEFILE"
+	lastdate=$(cat $PWD/"${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<');
+	years=$(echo $lastdate | tr "T" '\n'|head -n 1);
+	hours=$(echo $lastdate | tr "T" '\n'|tail -n 1);
+	echo $(date +%Y-%m-%d --date="$years")"T"$(date +%T.%NZ -u --date="$hours + 0.001 seconds")> "$TIMEFILE"
 fi 
 fi
 
@@ -733,7 +733,7 @@ echo ""
 
 cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n
 
-NPRODUCT=`cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n | cut -f11 -d' '`;
+NPRODUCT=$(cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n | cut -f11 -d' ');
  
 echo ""
 
@@ -765,7 +765,7 @@ cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c 'while : ; do
 	${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O ./MANIFEST/manifest.safe-${3} "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Nodes('\''"$3".SAFE'\'')/Nodes('\'manifest.safe\'')/\$value" ;
 	test=$?;
 	if [ $test -eq 0 ]; then
-		echo "Manifest ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+		echo "Manifest ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
 	fi;
 	[[ $test -ne 0 ]] || break;
 done ' 
@@ -791,7 +791,7 @@ cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c ' while : ; do
         ${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O $output_folder/${3}".zip" "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value";
 	test=$?;
 	if [ $test -eq 0 ]; then
-		echo "Product ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+		echo "Product ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
 		remoteMD5=$( ${WC} -qO- ${AUTH} ${TRIES} -c "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Checksum/Value/$value" | awk -F">" '\''{print $3}'\'' | awk -F"<" '\''{print $1}'\'');
 		localMD5=$( openssl md5 $output_folder/${3}".zip" | awk '\''{print $2}'\'');
 		localMD5Uppercase=$(echo "$localMD5" | tr '\''[:lower:]'\'' '\''[:upper:]'\'');
