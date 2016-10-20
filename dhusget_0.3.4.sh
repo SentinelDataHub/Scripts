@@ -704,7 +704,7 @@ if [ -z "$NAMEFILERESULTS" ];then
         export NAMEFILERESULTS="OSquery-result.xml"
 fi
 /bin/rm -f "$NAMEFILERESULTS"
-"${WC}" "${AUTH}" "${TRIES}" -c -O "${NAMEFILERESULTS}" "${QUERY_STATEMENT}"
+${WC} ${AUTH} ${TRIES} -c -O "${NAMEFILERESULTS}" "${QUERY_STATEMENT}"
 LASTDATE=$(date -u +%Y-%m-%dT%H:%M:%S.%NZ)
 sleep 5
 
@@ -767,7 +767,7 @@ cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c 'while : ; do
 	if [ $test -eq 0 ]; then
 		echo "Manifest ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
 	fi;
-	[[ $test -ne 0 ]] || break;
+	if [ $test -ne 0 ] ; then break; fi
 done ' 
 fi
 
