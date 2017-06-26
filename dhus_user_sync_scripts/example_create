@@ -1,0 +1,2 @@
+
+./createSynchronizer -D_SCHEDULE="0 */3 * * * ?" -D_REQUEST=stop -D_SERVICEURL="http://dhus1:8080/odata/v1" -D_LABEL=my_user_syncer -D_SERVICELOGIN=root -D_SERVICEPASSWORD=a

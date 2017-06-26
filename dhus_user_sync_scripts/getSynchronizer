@@ -1,0 +1,6 @@
+#!/bin/sh
+
+curl --basic -u ${DLOGIN}:${DPASS} \
+   "http://${DHOST}/odata/v1/UserSynchronizers($1)" 2>/dev/null \
+   | xmllint --format -
+

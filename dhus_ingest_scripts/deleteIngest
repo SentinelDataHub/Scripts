@@ -1,0 +1,3 @@
+#!/bin/bash
+
+curl -X DELETE --basic -u ${DLOGIN}:${DPASS} "http://${DHOST}/odata/v1/Ingests($1)"

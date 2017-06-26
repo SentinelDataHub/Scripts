@@ -1,0 +1,34 @@
+define(`ifnempty', `ifdef(`$1', `ifelse($1, `', `$3', `$2')', `$3')')dnl
+<entry xmlns:d="http://schemas.microsoft.com/ado/2007/08/dataservices"
+    xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" 
+    xmlns="http://www.w3.org/2005/Atom">
+   <id>http://localhost:8080/odata/v1/Synchronizers(_ID)</id>
+   <title type="text">Synchronizer</title>
+   <updated>2015-06-29T09:32:15.922Z</updated>
+   <category term="DHuS.Synchronizer" scheme="http://schemas.microsoft.com/ado/2007/08/dataservices/scheme"/>
+ifdef(`_TARGETCOLLECTION', `   <link rel="http://schemas.microsoft.com/ado/2007/08/dataservices/related/TargetCollection"', `dnl')
+ifdef(`_TARGETCOLLECTION', `      type="application/atom+xml;type=entry" title="TargetCollection" href="_TARGETCOLLECTION" />', `dnl')
+   <content type="application/xml">
+      <m:properties>
+ifnempty(`_SCHEDULE', `         <d:Schedule>_SCHEDULE</d:Schedule>', `dnl')
+ifnempty(`_REQUEST', `         <d:Request>_REQUEST</d:Request>', `dnl')
+ifnempty(`_SERVICEURL', `         <d:ServiceUrl>_SERVICEURL</d:ServiceUrl>', `dnl')
+ifnempty(`_LABEL', `         <d:Label>_LABEL</d:Label>', `dnl')
+ifdef(`_LABEL_NULL', `        <d:Label m:null="true" />', `dnl')
+ifnempty(`_SERVICELOGIN', `         <d:ServiceLogin>_SERVICELOGIN</d:ServiceLogin>', `dnl')
+ifnempty(`_SERVICEPASSWORD', `         <d:ServicePassword>_SERVICEPASSWORD</d:ServicePassword>', `dnl')
+ifnempty(`_PAGESIZE', `         <d:PageSize>_PAGESIZE</d:PageSize>', `dnl')
+ifnempty(`_LASTCREATIONDATE', `         <d:LastCreationDate>_LASTCREATIONDATE</d:LastCreationDate>', `dnl')
+ifdef(`_LASTCREATIONDATE_NULL', `        <d:LastCreationDate m:null="true" />', `dnl')
+ifnempty(`_COPYPRODUCT', `         <d:CopyProduct>_COPYPRODUCT</d:CopyProduct>', `dnl')
+ifnempty(`_FILTERPARAM', `         <d:FilterParam>_FILTERPARAM</d:FilterParam>', `dnl')
+ifdef(`_FILTERPARAM_NULL', `        <d:FilterParam m:null="true" />', `dnl')
+ifnempty(`_SOURCECOLLECTION', `         <d:SourceCollection>_SOURCECOLLECTION</d:SourceCollection>', `dnl')
+ifdef(`_SOURCECOLLECTION_NULL', `        <d:SourceCollection m:null="true" />', `dnl')
+ifnempty(`_GEOFILTER', `        <d:GeoFilter>_GEOFILTER</d:GeoFilter>', `dnl')
+ifdef(`_GEOFILTER_NULL', `        <d:GeoFilter m:null="true" />', `dnl')
+ifnempty(`_REMOTEINCOMING', `        <d:RemoteIncoming>_REMOTEINCOMING</d:RemoteIncoming>', `dnl')
+ifdef(`_REMOTEINCOMING_NULL', `        <d:RemoteIncoming m:null="true" />', `dnl')
+      </m:properties>
+   </content>
+</entry>

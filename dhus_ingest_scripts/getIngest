@@ -1,0 +1,5 @@
+#!/bin/sh
+
+curl --basic -u ${DLOGIN}:${DPASS} \
+   "http://${DHOST}/odata/v1/Ingests($1)"
+

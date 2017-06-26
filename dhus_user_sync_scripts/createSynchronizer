@@ -1,0 +1,10 @@
+#!/bin/bash
+
+m4 -D_ID="0L" "$@" body.txt > body.tmp
+
+curl --basic -u ${DLOGIN}:${DPASS} -d @body.tmp \
+   --header "Content-Type:application/atom+xml" \
+   --header "Accept:application/atom+xml" \
+   http://${DHOST}/odata/v1/UserSynchronizers
+
+rm body.tmp
