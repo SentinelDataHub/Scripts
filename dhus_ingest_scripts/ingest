@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# method to retrieve xpath from xml file
+function getXPath 
+{
+   if [ $# -ne 2 ]
+   then
+      echo "Wrong parameters: $0 <xpath> <file>"
+   else
+      xpath=$1
+      file=$2
+      echo "cat $xpath"|xmllint --shell $file | grep -v "^/ >" | grep -v " -*"
+   fi
+}
+
+FILEPATH=$1
+shift 1
+
+md5=`md5sum "$FILEPATH" | cut -d ' ' -f 1`
+filename=`basename "$FILEPATH"`
+
+curl -X POST --basic -u ${DLOGIN}:${DPASS} --data-binary @${FILEPATH} \
+  --header "Content-Type:application/octet-stream" \
+  --header "Accept:application/atom+xml" \
+  --header "Prefer:return-content" \
+  -o out.xml \
+  "http://${DHOST}/odata/v1/Ingests"
+
+id=$(getXPath "//*[name()='d:Id']/text()" out.xml)
+remote_md5=$(getXPath "//*[name()='d:MD5']/text()" out.xml | tr [:upper:] [:lower:])
+rm out.xml
+
+if [ "$md5" != "$remote_md5" ] ; then
+    echo "MD5 are different: local($md5) != remote($remote_md5), deleting uploaded product."
+    echo "Please retry."
+    curl -X DELETE --basic -u ${DLOGIN}:${DPASS} "http://${DHOST}/odata/v1/Ingests($id)"
+else
+    m4 -D_FILENAME=$filename "$@" body.txt > body.tmp
+
+    curl -X PUT --basic -u ${DLOGIN}:${DPASS} -d @body.tmp \
+      --header "Content-Type:application/atom+xml" \
+      "http://${DHOST}/odata/v1/Ingests($id)"
+
+    rm body.tmp
+fi

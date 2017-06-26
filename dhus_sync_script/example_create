@@ -1,0 +1,7 @@
+
+./createSynchronizer -D_SCHEDULE='0 */3 * * * ?' -D_REQUEST=stop -D_SERVICEURL='http://dhus1:8080/odata/v1' -D_SERVICELOGIN=root -D_SERVICEPASSWORD=a -D_PAGESIZE=5
+
+-D_REMOTEINCOMING=/mnt/nas/data/dhus/incoming-dhus1/
+
+-D_COPYPRODUCT=true
+

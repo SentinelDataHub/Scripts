@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [ -z "${DHOST+x}" -o -z "${DLOGIN+x}" -o -z "${DPASS+x}" ]; then
+  echo 'Error: environment variables are not set'
+  exit 1
+fi
+
+ID=$1
+shift 1
+
+m4 -D_ID=$ID "$@" body.txt > body.tmp
+
+curl -sS -X PUT --basic -u ${DLOGIN}:${DPASS} -d @body.tmp \
+   --header "Content-Type:application/atom+xml" \
+   "http://${DHOST}/odata/v1/Synchronizers($ID)"
+
+rm body.tmp

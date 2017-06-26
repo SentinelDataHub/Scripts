@@ -1,0 +1,1 @@
+./updateSynchronizer 0 -D_SCHEDULE='0 24 * * * ?'

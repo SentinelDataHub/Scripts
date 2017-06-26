@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ -z "${DHOST+x}" -o -z "${DLOGIN+x}" -o -z "${DPASS+x}" ]; then
+  echo 'Error: environment variables are not set'
+  exit 1
+fi
+
+curl -X DELETE --basic -u ${DLOGIN}:${DPASS} "http://${DHOST}/odata/v1/Synchronizers($1)"

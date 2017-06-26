@@ -1,0 +1,12 @@
+#!/bin/bash
+
+ID=$1
+shift 1
+
+m4 -D_ID=$ID "$@" body.txt > body.tmp
+
+curl -X PUT --basic -u ${DLOGIN}:${DPASS} -d @body.tmp \
+   --header "Content-Type:application/atom+xml" \
+   "http://${DHOST}/odata/v1/UserSynchronizers($ID)"
+
+rm body.tmp
