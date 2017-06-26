@@ -1,4 +1,6 @@
+
 # DHuS Ingest Scripts
+
 Upload/Ingest scripts for DHuS
 
 ## HowTo use
@@ -23,3 +25,6 @@ List ingests / print an ingest:
 
 Delete an ingest:  
 ```./deleteIngest <ingest id>```
+
+## Author
+ [jobayle](https://github.com/jobayle)
