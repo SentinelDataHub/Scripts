@@ -37,3 +37,5 @@ Start a synchroniser:
 Stop a synchroniser:  
 ```./stopSync <synchroniser id>```
 
+## Author
+ [jobayle](https://github.com/jobayle)
