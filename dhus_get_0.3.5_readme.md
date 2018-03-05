@@ -12,7 +12,9 @@ DESCRIPTION
  
   This script allows to get products from Sentinels Data Hubs executing query with different filter. The products can be visualized on shell and saved in list file
   or downloaded in a zip file.
-  Recommendation: If this script is run as a cronjob, to avoid traffic load, please do not schedule it exactly at on-the-clock hours (e.g 6:00, 5:00).
+  Recommendation: If this script is run as a cronjob, to avoid traffic load, please do not schedule it exactly at on-the-clock hours (e.g 6:00, 5:00).    
+
+NOTE: dhusget functionality is guaranteed in Linux environment. Linux emulators can cause failures.   
  
 OPTIONS
  
