@@ -151,7 +151,7 @@ function print_usage
  echo "   				  The format of the output file is compatible with option ${bold}-r${normal} ;"
  echo " "
  echo "   -D  				: if specified, remove the products that have failed the MD5 integrity check from disk."
- echo "   				  By deafult products are not removed;"
+ echo "   				  By default products are not removed;"
  echo " "
  echo "   -r <file>			: download the products listed in an input <file> written according to the following format:"
  echo "   				  - One product per line."
