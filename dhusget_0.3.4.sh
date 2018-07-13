@@ -151,7 +151,7 @@ function print_usage
  echo "   				  The format of the output file is compatible with option ${bold}-r${normal} ;"
  echo " "
  echo "   -D  				: if specified, remove the products that have failed the MD5 integrity check from disk."
- echo "   				  By deafult products are not removed;"
+ echo "   				  By default products are not removed;"
  echo " "
  echo "   -r <file>			: download the products listed in an input <file> written according to the following format:"
  echo "   				  - One product per line."
@@ -195,7 +195,7 @@ export SENSING_TIME_TO="NOW"
 unset TIMEFILE
 
 
-while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:D:r:O:N:L:n:" opt; do
+while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:Dr:O:N:L:n:" opt; do
  case $opt in
 	d)
 		export DHUS_DEST="$OPTARG"
