@@ -31,20 +31,22 @@
 #-------------------------------------------------------------------------------------------	#
 export VERSION=0.3.4
 
-WD=$HOME/dhusget_tmp
-PIDFILE=$WD/pid
+WD="$HOME/.config/dhusget/tmp" # changed to a less annoying standard location
+PIDFILE="$WD/pid"
 
-test -d $WD || mkdir -p $WD 
+test -d "$WD" || mkdir -p "$WD" 
 
 #-
 
-bold=$(tput bold)
-normal=$(tput sgr0)
-print_script=`echo "$0" | rev | cut -d'/' -f1 | rev`
+bold="$(tput bold)"
+normal="$(tput sgr0)"
+# print_script="$(echo $0 | rev | cut -d'/' -f1 | rev)"
+print_script=$(basename "$0") # coreutils assumed to be installed
 
 function print_usage 
 { 
- print_script=`echo "$1" | rev | cut -d'/' -f1 | rev`
+#  print_script=$(echo "$1" | rev | cut -d'/' -f1 | rev)
+ print_script=$(basename "$1")
  echo " "
  echo "${bold}NAME${normal}"
  echo " "
@@ -250,8 +252,8 @@ while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:D:r:O:N:L:n:" opt; d
                 ;;
 	f)
 		export TIMEFILE="$OPTARG"
-		if [ -s $TIMEFILE ]; then 		
-			export INGEGESTION_TIME_FROM="`cat $TIMEFILE`"
+		if [ -s "$TIMEFILE" ]; then 		
+			export INGEGESTION_TIME_FROM="$(cat $TIMEFILE)"
 		else
 			export INGEGESTION_TIME_FROM="1970-01-01T00:00:00.000Z"
 		fi
@@ -259,14 +261,14 @@ while getopts ":d:u:p:l:P:q:C:m:i:t:s:e:S:E:f:c:T:o:V:h:F:R:D:r:O:N:L:n:" opt; d
 	c) 
 		ROW=$OPTARG
 
-		FIRST=`echo "$ROW" | awk -F\: '{print \$1}' `
-		SECOND=`echo "$ROW" | awk -F\: '{print \$2}' `
+		FIRST=$(echo "$ROW" | awk -F\: '{print \$1}' )
+		SECOND=$(echo "$ROW" | awk -F\: '{print \$2}' )
 
 		#--
-		export x1=`echo ${FIRST}|awk -F, '{print $1}'`
-		export y1=`echo ${FIRST}|awk -F, '{print $2}'`
-		export x2=`echo ${SECOND}|awk -F, '{print $1}'`
-		export y2=`echo ${SECOND}|awk -F, '{print $2}'`
+		export x1=$(echo "${FIRST}"|awk -F, '{print $1}')
+		export y1=$(echo "${FIRST}"|awk -F, '{print $2}')
+		export x2=$(echo "${SECOND}"|awk -F, '{print $1}')
+		export y2=$(echo "${SECOND}"|awk -F, '{print $2}')
 		;;
 
 	T)
@@ -326,18 +328,18 @@ echo "==========================================================================
 ISSELECTEDEXIT=false;
 trap ISSELECTEDEXIT=true INT;
 
-if [ -z $lock_file ];then
+if [ -z "$lock_file" ];then
         export lock_file="$WD/lock"
 fi 
 
 mkdir $lock_file
 
-if [ ! $? == 0 ]; then 
-	echo -e "Error! An instance of \"dhusget\" retriever is running !\n Pid is: "`cat ${PIDFILE}` "if it isn't running delete the lockdir  ${lock_file}"
+if [ $? != 0 ]; then 
+	echo -e "Error! An instance of \"dhusget\" retriever is running !\n Pid is: "$(cat ${PIDFILE}) "if it isn't running delete the lockdir  ${lock_file}"
 	
 	exit 
 else
-	echo $$ > $PIDFILE
+	echo "$$" > "$PIDFILE"
 fi
 
 trap "rm -fr ${lock_file}" EXIT
@@ -346,11 +348,11 @@ export TIME_SUBQUERY="ingestiondate:[$INGEGESTION_TIME_FROM TO $INGEGESTION_TIME
 
 export SENSING_SUBQUERY="beginPosition:[$SENSING_TIME_FROM TO $SENSING_TIME_TO]  "
 
-if [ -z $THREAD_NUMBER ];then
+if [ -z "$THREAD_NUMBER" ];then
         export THREAD_NUMBER="2"
 fi
 
-if [ -z $output_folder ];then
+if [ -z "$output_folder" ];then
         export output_folder="PRODUCT"
 fi
 
@@ -360,7 +362,7 @@ echo "LOGIN"
 
 printf "\n"
 
-if [ -z $DHUS_DEST_IS_SET ];then
+if [ -z "$DHUS_DEST_IS_SET" ];then
 echo "'-d option' not specified. "
 echo "Default Data Hub Service URL is: "
 else
@@ -370,31 +372,31 @@ echo $DHUS_DEST
 
 printf "\n"
 
-if [ ! -z $USERNAME ] && [ -z $PASSWORD ];then
+if [ -n "$USERNAME" ] && [ -z "$PASSWORD" ];then
 echo "You have inserted only USERNAME"
 echo ""
 fi
 
-if [ -z $USERNAME ] && [ ! -z $PASSWORD ];then
+if [ -z "$USERNAME" ] && [ -n "$PASSWORD" ];then
 echo "You have inserted only PASSWORD"
 echo ""
 fi
 
-if [ -z $USERNAME ];then
+if [ -z "$USERNAME" ];then
         read -p "Enter username: " VAL
         printf "\n"
-        export USERNAME=${VAL}
+        export USERNAME="${VAL}"
 fi
 
-if [ -z $PASSWORD ];then
+if [ -z "$PASSWORD" ];then
 	read -s -p "Enter password: " VAL
         printf "\n\n"
-	export PASSWORD=${VAL}
+	export PASSWORD="${VAL}"
 fi
 
 export AUTH="--user=${USERNAME} --password=${PASSWORD}"
 
-if [ -z $number_tries ];then  
+if [ -z "$number_tries" ];then  
       export TRIES="--tries=5"
 else
       export TRIES="--tries=${number_tries}"
@@ -402,8 +404,8 @@ fi
 
 mkdir -p './logs/'
 
-if [ ! -z $check_retry ] && [ -s $FAILED_retry ]; then
-	 cp $FAILED_retry .failed.control.retry.now.txt
+if [ -n "$check_retry" ] && [ -s "$FAILED_retry" ]; then
+	 cp "$FAILED_retry" .failed.control.retry.now.txt
    	 export INPUT_FILE=.failed.control.retry.now.txt
 
 
@@ -412,12 +414,12 @@ if [ ! -z $check_retry ] && [ -s $FAILED_retry ]; then
 if [ -f .failed.control.now.txt ]; then
     rm .failed.control.now.txt
 fi
-cat ${INPUT_FILE} | xargs -n 4 -P ${THREAD_NUMBER} sh -c ' while : ; do
+cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c ' while : ; do
         echo "Downloading product ${3} from link ${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value"; 
         ${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O $output_folder/${3}".zip" "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value";
         test=$?;
         if [ $test -eq 0 ]; then
-                echo "Product ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+                echo "Product ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
                 remoteMD5=$( ${WC} -qO- ${AUTH} ${TRIES} -c "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Checksum/Value/$value" | awk -F">" '\''{print $3}'\'' | awk -F"<"     '\''{print $1}'\'');
                 localMD5=$( openssl md5 $output_folder/${3}".zip" | awk '\''{print $2}'\'');
                 localMD5Uppercase=$(echo "$localMD5" | tr '\''[:lower:]'\'' '\''[:upper:]'\'');
@@ -426,13 +428,13 @@ cat ${INPUT_FILE} | xargs -n 4 -P ${THREAD_NUMBER} sh -c ' while : ; do
                 else
                 echo "Checksum for product ${3} failed";
                 echo "${0} ${1} ${2} ${3}" >> .failed.control.now.txt;
-                if [ ! -z $save_products_failed ];then  
+                if [ -n $save_products_failed ];then  
 		      rm $output_folder/${3}".zip"
 		fi
                 fi; 
         else
                 echo "${0} ${1} ${2} ${3}" >> .failed.control.now.txt;
-                if [ ! -z $save_products_failed ];then
+                if [ -n $save_products_failed ];then
 		      rm $output_folder/${3}".zip"
                 fi
         fi;
@@ -445,7 +447,7 @@ fi
 echo "================================================================================================================"
 echo ""
 echo "SEARCH QUERY OPTIONS"
-if [ -z $TIME ] && [ -z $TIMEFILE ] && [ -z $ROW ] && [ -z $PRODUCT_TYPE ] && [ -z $FREE_SUBQUERY_CHECK ] && [ -z $SENSING_TIME ] && [ -z $MISSION ] && [ -z $INSTRUMENT ];
+if [ -z "$TIME" ] && [ -z "$TIMEFILE" ] && [ -z "$ROW" ] && [ -z "$PRODUCT_TYPE" ] && [ -z "$FREE_SUBQUERY_CHECK" ] && [ -z "$SENSING_TIME" ] && [ -z "$MISSION" ] && [ -z "$INSTRUMENT" ];
 then
      echo ""
      echo "No Search Options specified. Default query is q='*'."
@@ -454,25 +456,25 @@ then
 else
 echo ""
 fi
-if [ -z $MISSION ]; then
+if [ -z "$MISSION" ]; then
 	echo "'-m option' not specified. Search is performed on all available sentinel missions."
         echo ""
 else
         echo "'-m option' mission is set to $MISSION. "
         echo ""
 fi
-if [ -z $INSTRUMENT ]; then
+if [ -z "$INSTRUMENT" ]; then
 	echo "'-i option' not specified. Search is performed on all available instruments."
         echo ""
 else
         echo "'-i option' instrument is set to $INSTRUMENT. "
         echo ""
 fi
-if [ -z $TIME ]; then
+if [ -z "$TIME" ]; then
 	echo " Ingestion date options not specified ('-t', '-s', '-e').  "
         echo ""
 else
-if [ ! -z $isselected_filtertime_ingestion_date ] && [ ! -z $isselected_filtertime_lasthours ]; then 
+if [ -n "$isselected_filtertime_ingestion_date" ] && [ -n "$isselected_filtertime_lasthours" ]; then 
              if [ -z $TIMEFILE ];then 
 		echo "'-s option' and '-e option' are set to $INGEGESTION_TIME_FROM and $INGEGESTION_TIME_TO. Search is performed for all products ingested in the period [$INGEGESTION_TIME_FROM,$INGEGESTION_TIME_TO]. "
 	        echo ""
@@ -481,8 +483,8 @@ if [ ! -z $isselected_filtertime_ingestion_date ] && [ ! -z $isselected_filterti
 	        echo ""
              fi
      else 
-     if [ ! -z $isselected_filtertime_lasthours ]; then
-        if [ -z $TIMEFILE ];then
+     if [ -n "$isselected_filtertime_lasthours" ]; then
+        if [ -z "$TIMEFILE" ];then
          echo "'-t option' is set to $TIME. Search is performed for all products ingested in the last $TIME hours. "
          echo ""
         fi 
@@ -492,66 +494,66 @@ if [ ! -z $isselected_filtertime_ingestion_date ] && [ ! -z $isselected_filterti
      fi
      fi
 fi
-if [ -z $SENSING_TIME ]; then
+if [ -z "$SENSING_TIME" ]; then
 	echo " Sensing date options not specified ('-S', '-E')."
         echo ""
 else
         echo "'-S option' and '-E option' are set to $SENSING_TIME_FROM and $SENSING_TIME_TO. Search for all products having sensing date included in [$SENSING_TIME_FROM,$SENSING_TIME_TO]. "
          echo ""
 fi
-if [ ! -z $TIMEFILE ] && [ -z $isselected_filtertime_ingestion_date ]; then
+if [ -n "$TIMEFILE" ] && [ -z "$isselected_filtertime_ingestion_date" ]; then
 	echo "'-f option' is set to $TIMEFILE. The ingestion date provided through $TIMEFILE is used to search all products ingested in the period [DATEINGESTION,NOW]. The file is updated with the ingestion date of the last available product found. "
         echo ""
 fi
-if [ -z $ROW ]; then
+if [ -z "$ROW" ]; then
 	echo "'-c option' not specified. No specified Area of Interest. Search is performed on the whole globe."
         echo ""
 else
         echo "'-c option' is set to $x1,$y1:$x2,$y2. Search is performed on an Area of interest defined as a bounding box delimited by the two opposite vertices P1=[lon1=$x1,lat1=$y1] and P2=[lon2=$x2,lat2=$y2]. "
         echo ""
 fi
-if [ -z $PRODUCT_TYPE ]; then
+if [ -z "$PRODUCT_TYPE" ]; then
 	echo "'-T option' not specified. Search is performed on all available product types. "
         echo ""
 else
         echo "'-T option' product type is set to $PRODUCT_TYPE. "
         echo ""
 fi
-if [ ! -z $FREE_SUBQUERY_CHECK ]; then
+if [ -n "$FREE_SUBQUERY_CHECK" ]; then
         echo "'-F option' is set to $FREE_SUBQUERY. This OpenSearch query will be in AND with other search options. "
         echo ""
 fi
 echo "SEARCH RESULT OPTIONS"
 echo ""
-if [ -z $ROWS ]; then
+if [ -z "$ROWS" ]; then
 	echo "'-l option' not specified. Default Maximum Number of Results per page is 25. "
         echo ""
 else
         echo "'-l option' is set to $ROWS. The number of results per page is $ROWS. "
         echo ""
 fi
-if  [ -z $PAGE ]; then
+if  [ -z "$PAGE" ]; then
 	echo "'-P option' not specified. Default Page Number is 1. "
         echo ""
 else
         echo "'-P option' is set to $PAGE. The page visualized is $PAGE. "
         echo ""
 fi
-if [ -z $NAMEFILERESULTS ]; then
+if [ -z "$NAMEFILERESULTS" ]; then
 	echo "'-q option' not specified. OpenSearch results are stored by default in ./OSquery-result.xml. "
         echo ""
 else
         echo "'-q option' is set to $NAMEFILERESULTS. OpenSearch results are stored in $NAMEFILERESULTS. "
         echo ""
 fi
-if [ -z $PRODUCTLIST ]; then
+if [ -z "$PRODUCTLIST" ]; then
 	echo "'-C option' not specified. List of results are stored by default in the CSV file ./products-list.csv. "
         echo ""
 else
         echo "'-C option' is set to $PRODUCTLIST. List of results are stored in the specified CSV file $PRODUCTLIST. "
         echo ""
 fi
-if [ ! -z $TO_DOWNLOAD ] || [ ! -z $check_retry ];then
+if [ -n "$TO_DOWNLOAD" ] || [ -n "$check_retry" ];then
 CHECK_VAR=true;
 else
 CHECK_VAR=false;
@@ -562,12 +564,12 @@ if [ $CHECK_VAR == false ];then
 echo "No download options specified. No files will be downloaded. "
 echo ""
 fi
-if [ ! -z $TO_DOWNLOAD ]; then
-        if [ $TO_DOWNLOAD=="product" ]; then
+if [ -n "$TO_DOWNLOAD" ]; then
+        if [ "$TO_DOWNLOAD" == "product" ]; then
             echo "'-o option' is set to $TO_DOWNLOAD. Downloads are active. By default product downloads are stored in ./PRODUCT unless differently specified by the '-O option'. "
             echo ""
         else 
-        if [ $TO_DOWNLOAD=="manifest" ]; then
+        if [ "$TO_DOWNLOAD" == "manifest" ]; then
             echo "'-o option' is set to $TO_DOWNLOAD. Only manifest files are downloaded. Manifest files are stored in ./manifest. "
             echo ""
         else
@@ -577,90 +579,90 @@ if [ ! -z $TO_DOWNLOAD ]; then
         fi
 fi
 
-if [[ $CHECK_VAR == true &&  ! -z $OUTPUT_FOLDER_IS_SET ]]; then
+if [[ "$CHECK_VAR" == true &&  -n "$OUTPUT_FOLDER_IS_SET" ]]; then
     echo "'-O option' is set to $output_folder. Product downloads are stored in ./$output_folder. "
     echo ""
 fi
-if [[ $CHECK_VAR == true  &&  -z $number_tries ]]; then
+if [[ "$CHECK_VAR" == true  &&  -z "$number_tries" ]]; then
         echo "'-N option' not specified. By default the number of wget download retries is 5. "
         echo "" 
 else
-   if [[ $CHECK_VAR == true  &&  ! -z $number_tries ]]; then
+   if [[ "$CHECK_VAR" == true  &&  -n "$number_tries" ]]; then
         echo "'-N option' is set to $number_tries. The number of wget download retries is $number_tries. "
         echo ""
    fi
 fi
-if [[ $CHECK_VAR == true  &&  -z $check_save_failed ]]; then
+if [[ "$CHECK_VAR" == true  &&  -z "$check_save_failed" ]]; then
         echo "'-R option' not specified. By default the list of products failing the MD5 integrity check is saved in ./failed_MD5_check_list.txt. "
         echo "" 
 else
-     if [[ $CHECK_VAR == true  &&  ! -z $check_save_failed ]]; then
+     if [[ "$CHECK_VAR" == true  &&  -n "$check_save_failed" ]]; then
         echo "'-R option' is set to $FAILED. The list of products failing the MD5 integrity check is saved in $FAILED. "
         echo ""
      fi
 fi
-if [[ $CHECK_VAR == true  &&  ! -z $save_products_failed ]]; then
+if [[ "$CHECK_VAR" == true  &&  -n "$save_products_failed" ]]; then
     echo "'-D option' is active. Products that have failed the MD5 integrity check are deleted from the local disks. "
     echo ""
 fi
-if [[ $CHECK_VAR == true  &&  ! -z $check_retry ]]; then
+if [[ "$CHECK_VAR" == true  &&  -n "$check_retry" ]]; then
     echo "'-r option' is set to $FAILED_retry. It retries the download of the products listed in $FAILED_retry. "
     echo ""
 fi
-if [ ! -z $LOCK_FILE_IS_SET ]; then
+if [ -n "$LOCK_FILE_IS_SET" ]; then
         echo "'-L option' is set to $lock_file. This instance of dhusget can be executed in parallel to other instances. "
         echo ""
 fi
-if [[ $CHECK_VAR == true  &&  -z $THREAD_NUMBER_IS_SET ]]; then
+if [[ "$CHECK_VAR" == true  &&  -z "$THREAD_NUMBER_IS_SET" ]]; then
         echo "'-n option' not specified. By default the number of concurrent downloads (either products or manifest files) is 2. "
         echo ""
 else
-    if [[ $CHECK_VAR == true  &&  ! -z $THREAD_NUMBER_IS_SET ]]; then
+    if [[ "$CHECK_VAR" == true  &&  -n "$THREAD_NUMBER_IS_SET" ]]; then
         echo "'-n option' is set to $THREAD_NUMBER. The number of concurrent downloads (either products or manifest files) is set to $THREAD_NUMBER. Attention, this value doesn't override the quota limit set on the server side for the user. "
         echo ""
     fi
 fi
 echo "================================================================================================================"
 echo ""
-if [ ! -z $MISSION ];then
-	if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$MISSION" ];then
+	if [ -n "$QUERY_STATEMENT_CHECK" ]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
 	export QUERY_STATEMENT="$QUERY_STATEMENT platformname:$MISSION"
 	QUERY_STATEMENT_CHECK='OK'	
 fi 
-if [ ! -z $INSTRUMENT ];then
-	if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$INSTRUMENT" ];then
+	if [ -n $QUERY_STATEMENT_CHECK ]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
 	export QUERY_STATEMENT="$QUERY_STATEMENT instrumentshortname:$INSTRUMENT"
 	QUERY_STATEMENT_CHECK='OK'	
 fi 
-if [ ! -z $PRODUCT_TYPE ];then
-	if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$PRODUCT_TYPE" ];then
+	if [ -n "$QUERY_STATEMENT_CHECK" ]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
 	export QUERY_STATEMENT="$QUERY_STATEMENT producttype:$PRODUCT_TYPE"
 	QUERY_STATEMENT_CHECK='OK'	
 fi 
-if [ ! -z $TIME ];then
-	if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$TIME" ];then
+	if [ -n "$QUERY_STATEMENT_CHECK" ]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
 	export QUERY_STATEMENT="$QUERY_STATEMENT ${TIME_SUBQUERY}"
 	QUERY_STATEMENT_CHECK='OK'
 fi
 
-if [ ! -z $SENSING_TIME ];then
-        if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$SENSING_TIME" ];then
+        if [ -n "$QUERY_STATEMENT_CHECK" ]; then
                 export QUERY_STATEMENT="$QUERY_STATEMENT AND "
         fi
         export QUERY_STATEMENT="$QUERY_STATEMENT ${SENSING_SUBQUERY}"
 	QUERY_STATEMENT_CHECK='OK'
 fi
 
-if [ ! -z $TIMEFILE ];then
-        if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$TIMEFILE" ];then
+        if [ -n "$QUERY_STATEMENT_CHECK" ]; then
                 export QUERY_STATEMENT="$QUERY_STATEMENT AND "
         fi
         export QUERY_STATEMENT="$QUERY_STATEMENT ${TIME_SUBQUERY}"
@@ -668,8 +670,8 @@ if [ ! -z $TIMEFILE ];then
 	QUERY_STATEMENT_CHECK='OK'
 fi
 
-if [ ! -z $FREE_SUBQUERY_CHECK ];then
-        if [ ! -z $QUERY_STATEMENT_CHECK ]; then
+if [ -n "$FREE_SUBQUERY_CHECK" ];then
+        if [ -n "$QUERY_STATEMENT_CHECK" ]; then
                 export QUERY_STATEMENT="$QUERY_STATEMENT AND "
         fi
         export QUERY_STATEMENT="$QUERY_STATEMENT $FREE_SUBQUERY"
@@ -677,35 +679,35 @@ if [ ! -z $FREE_SUBQUERY_CHECK ];then
 fi
 
 #---- Prepare query polygon statement
-if [ ! -z $x1 ];then
-	if [[ ! -z $QUERY_STATEMENT ]]; then
+if [ -n "$x1" ];then
+	if [[ -n "$QUERY_STATEMENT" ]]; then
 		export QUERY_STATEMENT="$QUERY_STATEMENT AND "	
 	fi
-	export GEO_SUBQUERY=`LC_NUMERIC=en_US.UTF-8; printf "( footprint:\"Intersects(POLYGON((%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f )))\")" $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 $x1 $y1 `
+	export GEO_SUBQUERY=$(LC_NUMERIC=en_US.UTF-8; printf "( footprint:\"Intersects(POLYGON((%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f,%.13f %.13f )))\")" $x1 $y1 $x2 $y1 $x2 $y2 $x1 $y2 $x1 $y1 )
 	export QUERY_STATEMENT=${QUERY_STATEMENT}" ${GEO_SUBQUERY}"
 else
 	export GEO_SUBQUERY=""
 fi
 #- ... append on query (without repl
-if [ -z $ROWS ];then
+if [ -z "$ROWS" ];then
         export ROWS=25
 fi
 
-if [ -z $PAGE ];then
+if [ -z "$PAGE" ];then
         export PAGE=1
 fi
-START=$((PAGE-1))
-START=$((START*ROWS))
+START="$((PAGE-1))"
+START="$((START*ROWS))"
 export QUERY_STATEMENT="${DHUS_DEST}/search?q="${QUERY_STATEMENT}"&rows="${ROWS}"&start="${START}""
 echo "HTTP request done: "$QUERY_STATEMENT""
 echo ""
 #--- Execute query statement
-if [ -z $NAMEFILERESULTS ];then
+if [ -z "$NAMEFILERESULTS" ];then
         export NAMEFILERESULTS="OSquery-result.xml"
 fi
-/bin/rm -f $NAMEFILERESULTS
+/bin/rm -f "$NAMEFILERESULTS"
 ${WC} ${AUTH} ${TRIES} -c -O "${NAMEFILERESULTS}" "${QUERY_STATEMENT}"
-LASTDATE=`date -u +%Y-%m-%dT%H:%M:%S.%NZ`
+LASTDATE=$(date -u +%Y-%m-%dT%H:%M:%S.%NZ)
 sleep 5
 
 cat $PWD/"${NAMEFILERESULTS}" | grep '<id>' | tail -n +2 | cut -f2 -d'>' | cut -f1 -d'<' | cat -n > .product_id_list
@@ -713,13 +715,13 @@ cat $PWD/"${NAMEFILERESULTS}" | grep '<id>' | tail -n +2 | cut -f2 -d'>' | cut -
 cat $PWD/"${NAMEFILERESULTS}" | grep '<link rel="alternative" href=' | cut -f4 -d'"' | cat -n | sed 's/\/$//'> .product_link_list
 
 cat $PWD/"${NAMEFILERESULTS}" | grep '<title>' | tail -n +2 | cut -f2 -d'>' | cut -f1 -d'<' | cat -n > .product_title_list
-if [ ! -z $TIMEFILE ];then
-if [ `cat "${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<' | wc -l` -ne 0 ];
+if [ -n "$TIMEFILE" ];then
+if [ $(cat "${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<' | wc -l) -ne 0 ];
 then
-	lastdate=`cat $PWD/"${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<'`;
-	years=`echo $lastdate | tr "T" '\n'|head -n 1`;
-	hours=`echo $lastdate | tr "T" '\n'|tail -n 1`;
-	echo `date +%Y-%m-%d --date="$years"`"T"`date +%T.%NZ -u --date="$hours + 0.001 seconds"`> $TIMEFILE
+	lastdate=$(cat $PWD/"${NAMEFILERESULTS}" | grep '="ingestiondate"' |  head -n 1 | cut -f2 -d'>' | cut -f1 -d'<');
+	years=$(echo $lastdate | tr "T" '\n'|head -n 1);
+	hours=$(echo $lastdate | tr "T" '\n'|tail -n 1);
+	echo $(date +%Y-%m-%d --date="$years")"T"$(date +%T.%NZ -u --date="$hours + 0.001 seconds")> "$TIMEFILE"
 fi 
 fi
 
@@ -733,41 +735,41 @@ echo ""
 
 cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n
 
-NPRODUCT=`cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n | cut -f11 -d' '`;
+NPRODUCT=$(cat "${NAMEFILERESULTS}" | grep '<subtitle>' | cut -f2 -d'>' | cut -f1 -d'<' | cat -n | cut -f11 -d' ');
  
 echo ""
 
 if [ "${NPRODUCT}" == "0" ]; then exit 1; fi
 
 cat .product_list_withlink
-if [ -z $PRODUCTLIST ];then
+if [ -z "$PRODUCTLIST" ];then
    export PRODUCTLIST="products-list.csv"
 fi
-cp .product_list_withlink $PRODUCTLIST
-cat $PRODUCTLIST | cut -f2 -d$'\t' > .products-list-tmp.csv
+cp .product_list_withlink "$PRODUCTLIST"
+cat "$PRODUCTLIST" | cut -f2 -d$'\t' > .products-list-tmp.csv
 cat .products-list-tmp.csv | grep -v 'https' > .list_name_products.csv
 cat .products-list-tmp.csv | grep 'https' > .list_link_to_products.csv
-paste -d',' .list_name_products.csv .list_link_to_products.csv > $PRODUCTLIST 
+paste -d',' .list_name_products.csv .list_link_to_products.csv > "$PRODUCTLIST" 
 rm .product_list_withlink .products-list-tmp.csv .list_name_products.csv .list_link_to_products.csv  
 export rv=0
 if [ "${TO_DOWNLOAD}" == "manifest" -o "${TO_DOWNLOAD}" == "all" ]; then
 	export INPUT_FILE=product_list
 
-	if [ ! -f ${INPUT_FILE} ]; then
+	if [ ! -f "${INPUT_FILE}" ]; then
 	 echo "Error: Input file ${INPUT_FILE} not present "
 	 exit
 	fi
 
 	mkdir -p MANIFEST/
 
-cat ${INPUT_FILE} | xargs -n 4 -P ${THREAD_NUMBER} sh -c 'while : ; do
+cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c 'while : ; do
 	echo "Downloading manifest ${3} from link ${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Nodes('\''"$3".SAFE'\'')/Nodes('\'manifest.safe\'')/\$value"; 
 	${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O ./MANIFEST/manifest.safe-${3} "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Nodes('\''"$3".SAFE'\'')/Nodes('\'manifest.safe\'')/\$value" ;
 	test=$?;
 	if [ $test -eq 0 ]; then
-		echo "Manifest ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+		echo "Manifest ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
 	fi;
-	[[ $test -ne 0 ]] || break;
+	if [ $test -ne 0 ] ; then break; fi
 done ' 
 fi
 
@@ -776,7 +778,7 @@ if [ "${TO_DOWNLOAD}" == "product" -o "${TO_DOWNLOAD}" == "all" ];then
     export INPUT_FILE=product_list
 
 
-mkdir -p $output_folder
+mkdir -p "$output_folder"
 
 #Xargs works here as a thread pool, it launches a download for each thread (P 2), each single thread checks 
 #if the download is completed succesfully.
@@ -786,12 +788,12 @@ mkdir -p $output_folder
 if [ -f .failed.control.now.txt ]; then
     rm .failed.control.now.txt
 fi
-cat ${INPUT_FILE} | xargs -n 4 -P ${THREAD_NUMBER} sh -c ' while : ; do
+cat "${INPUT_FILE}" | xargs -n 4 -P "${THREAD_NUMBER}" sh -c ' while : ; do
 	echo "Downloading product ${3} from link ${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value"; 
         ${WC} ${AUTH} ${TRIES} --progress=dot -e dotbytes=10M -c --output-file=./logs/log.${3}.log -O $output_folder/${3}".zip" "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/\$value";
 	test=$?;
 	if [ $test -eq 0 ]; then
-		echo "Product ${3} successfully downloaded at " `tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\''`;
+		echo "Product ${3} successfully downloaded at " $(tail -2 ./logs/log.${3}.log | head -1 | awk -F"(" '\''{print $2}'\'' | awk -F")" '\''{print $1}'\'');
 		remoteMD5=$( ${WC} -qO- ${AUTH} ${TRIES} -c "${DHUS_DEST}/odata/v1/Products('\''"$1"'\'')/Checksum/Value/$value" | awk -F">" '\''{print $3}'\'' | awk -F"<" '\''{print $1}'\'');
 		localMD5=$( openssl md5 $output_folder/${3}".zip" | awk '\''{print $2}'\'');
 		localMD5Uppercase=$(echo "$localMD5" | tr '\''[:lower:]'\'' '\''[:upper:]'\'');
@@ -801,24 +803,24 @@ cat ${INPUT_FILE} | xargs -n 4 -P ${THREAD_NUMBER} sh -c ' while : ; do
 		else
 		echo "Checksum for product ${3} failed";
 		echo "${0} ${1} ${2} ${3}" >> .failed.control.now.txt;
-		if [ ! -z $save_products_failed ];then  
+		if [ -n $save_products_failed ];then  
 		      rm $output_folder/${3}".zip"
 		fi
 		fi; 
 	else
                 echo "${0} ${1} ${2} ${3}" >> .failed.control.now.txt;
-                if [ ! -z $save_products_failed ];then  
+                if [ -n $save_products_failed ];then  
 		      rm $output_folder/${3}".zip"
                 fi
 	fi;
         break;
 done '
 fi
-if [ ! -z $check_save_failed ]; then
+if [ -n "$check_save_failed" ]; then
     if [ -f .failed.control.now.txt ];then
     	mv .failed.control.now.txt $FAILED
     else 
-    if [ ! -f .failed.control.now.txt ] && [ $CHECK_VAR == true ] && [ ! ISSELECTEDEXIT ];then
+    if [ ! -f .failed.control.now.txt ] && [ "$CHECK_VAR" == true ] && [ "$ISSELECTEDEXIT" == false ];then
     	echo "All downloaded products have successfully passed MD5 integrity check"
     fi
     fi
@@ -826,7 +828,7 @@ else
     if [ -f .failed.control.now.txt ];then
     	 mv .failed.control.now.txt failed_MD5_check_list.txt
     else 
-    if [ ! -f .failed.control.now.txt ] && [ $CHECK_VAR == true ] && [ ! ISSELECTEDEXIT ];then
+    if [ ! -f .failed.control.now.txt ] && [ "$CHECK_VAR" == true ] && [ "$ISSELECTEDEXIT" == false ];then
     	echo "All downloaded products have successfully passed MD5 integrity check"
     fi
     fi
